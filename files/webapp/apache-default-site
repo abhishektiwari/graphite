@@ -1,0 +1,38 @@
+<VirtualHost *:80>
+    ServerName   graphite
+    DocumentRoot "/opt/graphite/webapp"
+    ErrorLog     "/var/log/graphite/error.log"
+    CustomLog    "/var/log/graphite/access.log" common
+
+    <Location "/">
+        SetHandler       python-program
+        PythonPath       "['/opt/graphite/webapp'] + sys.path"
+        PythonHandler    django.core.handlers.modpython
+        SetEnv           DJANGO_SETTINGS_MODULE graphite.settings
+        PythonDebug      Off
+        PythonAutoReload Off
+    </Location>
+
+    <Location "/carbon-web-proxy/v1.0/">
+        SetHandler       python-program
+        PythonPath       "['/opt/carbon/web-proxy/v1.0'] + sys.path"
+        PythonHandler    web-proxy
+        PythonDebug      Off
+        PythonAutoReload Off
+    </Location>
+
+    <Location "/content/">
+        SetHandler None
+    </Location>
+
+    <Location "/media/">
+        SetHandler None
+    </Location>
+
+    # NOTE: In order for the django admin site media to work you
+    # must change @DJANGO_ROOT@ to be the path to your django
+    # installation, which is probably something like:
+    # /usr/lib/python2.6/site-packages/django
+    Alias /media/ "@DJANGO_ROOT@/contrib/admin/media/"
+
+</VirtualHost>
